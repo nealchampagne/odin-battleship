@@ -3,13 +3,24 @@
   "version": "1.0.0",
   "description": "## Description This is my implementation of the Battleship TDD capstone project from the Javascript Course of the Odin Project's Full Stack Javascript curriculum.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "build": "webpack --config webpack.config.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "jest": "^29.7.0"
+    "@eslint/js": "^9.11.1",
+    "css-loader": "^7.1.2",
+    "eslint": "^9.11.1",
+    "html-webpack-plugin": "^5.6.0",
+    "jest": "^29.7.0",
+    "mini-css-extract-plugin": "^2.9.1",
+    "prettier": "3.3.3",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
   }
 }
