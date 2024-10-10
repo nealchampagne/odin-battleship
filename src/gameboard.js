@@ -3,6 +3,10 @@ import { Ship } from './ship.js';
 export const Gameboard = () => {
 
   const boardObjects = [];
+
+  let visitedArray = [];
+
+  const getVisitedArray = () => visitedArray;
   
   const gridSize = 9;
 
@@ -44,10 +48,10 @@ export const Gameboard = () => {
           };
         };
       } else if (direction === 'vertical') {
-        if ((y + (size -1 )) > gridSize) {
+        if ((y + (size - 1 )) > gridSize) {
           throw new Error('Cannot place ship off the board')
         } else {
-          for(let i = 0; i < size-1; i++) {
+          for(let i = 0; i < size; i++) {
             positionArray.push([x, y + i]);
           };
         };
@@ -60,18 +64,44 @@ export const Gameboard = () => {
   };
 
   const receiveAttack = (x, y) => {
+
+    // Throw error if the square has already been visited
+    if (visitedArray.some(element => 
+      JSON.stringify(element) === `[${x},${y}]`)) {
+      throw new Error('Please choose an unvisited square')
+    }
+
+    // Otherwise if it's a hit, invoke hit method of ship and return true
     let isHit = false;
     boardObjects.forEach(obj => {
-      if (obj.positionArray.find(element => JSON.stringify(element) === `[${x},${y}]`)) {
+      if (obj.positionArray.find(element =>
+        JSON.stringify(element) === `[${x},${y}]`)) {
         obj.ship.hit();
         isHit = true;
       };
     });
+
+    // Add the square to the visited array
+    visitedArray.push([x,y]);
+
     return isHit;
   };
 
-  return { placeShip, 
+  const checkAllSunk = () => {
+    let allSunk = true;
+    boardObjects.forEach(obj => {
+      if (obj.ship.isSunk() === false) {
+        allSunk = false;
+      };
+    });
+    return allSunk;
+  };
+
+  return { gridSize,
+          placeShip, 
           checkEmpty,
           boardObjects,
-          receiveAttack };
+          getVisitedArray,
+          receiveAttack,
+          checkAllSunk };
 };
