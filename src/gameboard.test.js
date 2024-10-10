@@ -74,4 +74,37 @@ test('receiveAttack eventually results in a sunk ship', () => {
   playerBoard.receiveAttack(2,1);
 
   expect(playerBoard.boardObjects[0].ship.isSunk()).toBe(true);
-})
+});
+
+test('If all boats are sunk, allSunk returns true', () => {
+  const playerBoard = Gameboard();
+
+  playerBoard.placeShip(2,'horizontal',1,1);
+  playerBoard.placeShip(4,'vertical',4,4);
+
+  playerBoard.receiveAttack(1,1);
+  playerBoard.receiveAttack(2,1);
+
+  expect(playerBoard.checkAllSunk()).toBe(false);
+
+  playerBoard.receiveAttack(4,4);
+  playerBoard.receiveAttack(4,5);
+  playerBoard.receiveAttack(4,6);
+  playerBoard.receiveAttack(4,7);
+
+  expect(playerBoard.checkAllSunk()).toBe(true);
+});
+
+test(`Choosing a square you've already shot at produces an error`, () => {
+  const playerBoard = Gameboard();
+
+  playerBoard.receiveAttack(1,1);
+
+  expect(() => playerBoard.receiveAttack(1,1))
+    .toThrow('Please choose an unvisited square');
+
+  playerBoard.receiveAttack(3,3);
+
+  expect(() => playerBoard.receiveAttack(3,3))
+    .toThrow('Please choose an unvisited square');
+});
