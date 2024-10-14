@@ -10,6 +10,7 @@ export const Player = type => {
 
   let hunterMode = false;
   const visitedArray = [];
+
   const hitArray = [];
   let targetArray = [];
 
@@ -119,6 +120,7 @@ export const Player = type => {
           hitArray,
           getTargetArray,
           computerAttack,
+          visitedArray,
           getHunterMode };
 
 };
