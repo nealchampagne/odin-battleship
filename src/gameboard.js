@@ -3,10 +3,6 @@ import { Ship } from './ship.js';
 export const Gameboard = () => {
 
   const boardObjects = [];
-
-  let visitedArray = [];
-
-  const getVisitedArray = () => visitedArray;
   
   const gridSize = 9;
 
@@ -63,7 +59,7 @@ export const Gameboard = () => {
     };
   };
 
-  const receiveAttack = (x, y) => {
+  const receiveAttack = (visitedArray, x, y) => {
 
     // Throw error if the square has already been visited
     if (visitedArray.some(element => 
@@ -83,7 +79,11 @@ export const Gameboard = () => {
 
     // Add the square to the visited array
     visitedArray.push([x,y]);
-
+    if (isHit) {
+      console.log('KABOOM');
+    } else {
+      console.log('SPLOOSH');
+    }
     return isHit;
   };
 
@@ -101,7 +101,6 @@ export const Gameboard = () => {
           placeShip, 
           checkEmpty,
           boardObjects,
-          getVisitedArray,
           receiveAttack,
           checkAllSunk };
 };
