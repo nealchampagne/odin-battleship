@@ -1,0 +1,129 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+}
+
+#content {
+  height: 100vh;
+  width: auto;
+  display: grid;
+  grid-template-rows: 10rem 1fr 5rem;
+  padding: 1rem;
+}
+
+.headcontainer {
+  height: 10rem;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+}
+
+.header {
+  background: hsl(0, 0%, 63%);
+  border-radius: 0.5rem;
+}
+
+.title {
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 5rem;
+  font-weight: 700;
+}
+
+.main {
+  background: hsl(221, 84%, 22%);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.namecontainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: center;
+  justify-items: center;
+  padding: 1rem 15rem;
+}
+
+.boardcontainer {
+  height: 38rem;
+  display: grid;
+  grid-template-columns: 12rem 1fr 1fr 12rem;
+  align-items: center;
+  justify-items: center;
+  padding: 1rem;
+  gap: 2rem;
+}
+
+.shiptray {
+  border: 2px solid maroon;
+  border-radius: 0.5rem;
+  height: 20rem;
+  width: 12rem;
+}
+
+.board {
+  border: 2px solid white;
+  height: 38rem;
+  width: 38rem;
+  display: grid;
+  grid-template: repeat(10, 1fr) / repeat(10, 1fr);
+  align-items: center;
+  justify-items: center;
+}
+
+.square {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  border: 1px solid white;
+  height: 100%;
+  width: 100%;
+  font-size: 3rem;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  cursor: pointer;
+}
+
+.fogofwar {
+  background: hsla(0,0%,20%,80%);
+}
+
+.miss, .hit {
+  pointer-events: none;
+  cursor: none;
+}
+
+.miss {
+  color: white;
+}
+
+.hit {
+  color: red;
+  border: 2px solid red;
+}
+
+.name {
+  color: white;
+  font-size: 2rem;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-weight: 700;
+}
+
+.footcontainer {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  background: hsl(0, 0%, 63%);
+  border-radius: 0.5rem;
+}
+
+.footer {
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
