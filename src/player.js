@@ -1,22 +1,19 @@
 import { Gameboard } from './gameboard.js';
 
-export const Player = type => {
+export const Player = (name, array = []) => {
 
   const board = Gameboard();
 
-  const attack = (playerBoard, x, y) => {
-    playerBoard.receiveAttack(x,y);
+  const attack = (playerBoard, x, y, visitedArray = array,) => {
+    return playerBoard.receiveAttack(visitedArray,x,y);
   };
 
   let hunterMode = false;
-  const visitedArray = [];
 
   const hitArray = [];
   let targetArray = [];
 
-  const getTargetArray = () => targetArray;
-
-  const filterParams = arr => ((arr[0] >= 0 && arr[0] <= board.gridSize)
+  const filterParams = (arr, visitedArray) => ((arr[0] >= 0 && arr[0] <= board.gridSize)
   && (arr[1] >= 0 && arr[1] <= board.gridSize) 
   && !JSON.stringify(visitedArray).includes(`${JSON.stringify(arr)}`));
 
@@ -24,9 +21,12 @@ export const Player = type => {
 
   const getRandomValue = () => Math.floor(Math.random()*(board.gridSize+1));
 
-  const computerAttack = (playerBoard, 
+  const computerAttack = (playerBoard,
     x = getRandomValue(),
-    y = getRandomValue()) => {
+    y = getRandomValue(),
+    visitedArray = array) => {
+    
+    let isHit = false;
 
     // During random search
     if (hunterMode === false) {
@@ -37,9 +37,10 @@ export const Player = type => {
         x = getRandomValue();
         y = getRandomValue();
       };
-      visitedArray.push([x,y]);
 
-      if (playerBoard.receiveAttack(x,y)) {
+      if (playerBoard.receiveAttack(visitedArray,x,y)) {
+
+        isHit = true;
 
         playerBoard.boardObjects.forEach(obj => {
 
@@ -51,6 +52,7 @@ export const Player = type => {
              *  otherwise begin hunting logic */
             if (obj.ship.isSunk()) {
 
+              console.log('Sunk em!')
               hunterMode = false;
 
             } else {
@@ -60,7 +62,7 @@ export const Player = type => {
               hitArray.push([x,y]);
 
               const adjacencyArray = [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].filter(arr => { 
-                return (filterParams(arr));
+                return (filterParams(arr,visitedArray));
               });
 
               adjacencyArray.forEach(element => {
@@ -71,13 +73,17 @@ export const Player = type => {
           }
         })
       };
+      return [isHit, x, y];
     } else if (hunterMode === true) {
 
       targetArray.sort();
 
       let target = targetArray[Math.floor(Math.random()*targetArray.length)];
-      visitedArray.push(target);
-      if (playerBoard.receiveAttack(target[0],target[1])) {
+
+      if (playerBoard.receiveAttack(visitedArray,target[0],target[1])) {
+        
+        isHit = true;
+
         playerBoard.boardObjects.forEach(obj => {
 
           if(obj.positionArray.some(element => 
@@ -86,13 +92,11 @@ export const Player = type => {
 
             // If the hit sinks the ship,deactivate hunter mode,
             if (obj.ship.isSunk()) {
-
               hunterMode = false;
               hitArray.length = 0;
               targetArray.length = 0;
-
-            }
-          }
+            };
+          };
         });
         if (hunterMode === true) {
           hitArray.push(target);
@@ -100,27 +104,31 @@ export const Player = type => {
 
           targetArray.length = 0;
           if (hitArray[0][0] === hitArray[1][0]) {
-            targetArray.push([hitArray[0][0],(hitArray[0][1]-1)],[hitArray[0][0],hitArray[hitArray.length-1][1]+1]);
+            targetArray.push([hitArray[0][0],(hitArray[0][1]-1)],
+              [hitArray[0][0],hitArray[hitArray.length-1][1]+1]);
           } else if (hitArray[0][1] === hitArray[0][1]) {
-            targetArray.push([hitArray[0][0]-1,hitArray[0][1]],[hitArray[hitArray.length-1][0]+1,hitArray[0][1]])
-          }
+            targetArray.push([hitArray[0][0]-1,hitArray[0][1]],
+              [hitArray[hitArray.length-1][0]+1,hitArray[0][1]]);
+          };
 
-          targetArray = targetArray.filter(arr => {return filterParams(arr)});
+          targetArray = targetArray.filter(arr => {return filterParams(arr,visitedArray)});
 
-        }
+        };
       } else {
         targetArray.splice(targetArray.indexOf(target), 1);
       };
+      return [isHit, target[0], target[1]];
     };
   };
 
-  return { type,
+  return { name,
+          get visitedArray() {
+            return array
+          },
           board,
           attack,
           hitArray,
-          getTargetArray,
+          targetArray,
           computerAttack,
-          visitedArray,
           getHunterMode };
-
 };
