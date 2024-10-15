@@ -1,12 +1,12 @@
 import { Player } from './player.js';
 
 test('Returns correct type', () => {
-  expect (Player('human').type).toBe('human');
+  expect (Player('human').name).toBe('human');
 });
 
 test('Attacks are properly received by opposing player', () => {
-  const player1 = Player('human');
-  const player2 = Player('human');
+  const player1 = Player('player1');
+  const player2 = Player('player2');
 
   player2.board.placeShip(1,'horizontal',1,1);
 
@@ -48,7 +48,7 @@ test('hitArray and targetArray for hunterMode are initialized on hit', () => {
   expect(computer.getHunterMode()).toBe(true);
 
   expect(computer.hitArray).toEqual([[1,1]]);
-  expect(computer.getTargetArray()).toEqual([[0,1],[1,0],[1,2],[2,1]])
+  expect(computer.targetArray).toEqual([[0,1],[1,0],[1,2],[2,1]])
 });
 
 test('hitArray and targetArray change as expected on repeated hits', () => {
