@@ -59,52 +59,55 @@ test('Throws appropriate error when placing a ship in an occupied space', () => 
 });
 
 test('receiveAttack takes a pair of coordinates and returns a boolean', () => {
-  expect(typeof Gameboard().receiveAttack(1,2)).toBe('boolean');
+  expect(typeof Gameboard().receiveAttack([],1,2)).toBe('boolean');
 });
 
 test('receiveAttack eventually results in a sunk ship', () => {
   const playerBoard = Gameboard();
+  const visitedArray = [];
 
   playerBoard.placeShip(2,'horizontal',1,1);
 
-  playerBoard.receiveAttack(1,1);
+  playerBoard.receiveAttack(visitedArray,1,1);
 
   expect(playerBoard.boardObjects[0].ship.isSunk()).toBe(false);
 
-  playerBoard.receiveAttack(2,1);
+  playerBoard.receiveAttack(visitedArray,2,1);
 
   expect(playerBoard.boardObjects[0].ship.isSunk()).toBe(true);
 });
 
 test('If all boats are sunk, allSunk returns true', () => {
   const playerBoard = Gameboard();
+  const visitedArray = [];
 
   playerBoard.placeShip(2,'horizontal',1,1);
   playerBoard.placeShip(4,'vertical',4,4);
 
-  playerBoard.receiveAttack(1,1);
-  playerBoard.receiveAttack(2,1);
+  playerBoard.receiveAttack(visitedArray,1,1);
+  playerBoard.receiveAttack(visitedArray,2,1);
 
   expect(playerBoard.checkAllSunk()).toBe(false);
 
-  playerBoard.receiveAttack(4,4);
-  playerBoard.receiveAttack(4,5);
-  playerBoard.receiveAttack(4,6);
-  playerBoard.receiveAttack(4,7);
+  playerBoard.receiveAttack(visitedArray,4,4);
+  playerBoard.receiveAttack(visitedArray,4,5);
+  playerBoard.receiveAttack(visitedArray,4,6);
+  playerBoard.receiveAttack(visitedArray,4,7);
 
   expect(playerBoard.checkAllSunk()).toBe(true);
 });
 
 test(`Choosing a square you've already shot at produces an error`, () => {
   const playerBoard = Gameboard();
+  const visitedArray = [];
 
-  playerBoard.receiveAttack(1,1);
+  playerBoard.receiveAttack(visitedArray,1,1);
 
-  expect(() => playerBoard.receiveAttack(1,1))
+  expect(() => playerBoard.receiveAttack(visitedArray,1,1))
     .toThrow('Please choose an unvisited square');
 
-  playerBoard.receiveAttack(3,3);
+  playerBoard.receiveAttack(visitedArray,3,3);
 
-  expect(() => playerBoard.receiveAttack(3,3))
+  expect(() => playerBoard.receiveAttack(visitedArray,3,3))
     .toThrow('Please choose an unvisited square');
 });
