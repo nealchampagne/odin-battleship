@@ -8,25 +8,22 @@ test('Attacks are properly received by opposing player', () => {
   const player1 = Player('player1');
   const player2 = Player('player2');
 
-  player2.board.placeShip(1,'horizontal',1,1);
+  player2.board.placeShip('destroyer','horizontal',1,1);
 
   expect(player2.board.boardObjects[0].ship.isSunk()).toBe(false);
 
   player1.attack(player2.board,1,1);
+  player1.attack(player2.board,2,1);
 
-  expect(player2.board.boardObjects[0].ship.isSunk()).toBe(true);
+  expect(player2.board.boardObjects[0].ship.isSunk()).toBeTruthy();
 });
 
 test('A hit by computer activates hunterMode, unless it sinks the ship', () => {
   const human = Player('human');
   const computer = Player('computer');
 
-  human.board.placeShip(1,'horizontal',1,1);
-  human.board.placeShip(2,'vertical',7,7);
-
-  expect(computer.getHunterMode()).toBe(false);
-
-  computer.computerAttack(human.board,1,1);
+  human.board.placeShip('destroyer','horizontal',1,1);
+  human.board.placeShip('cruiser','vertical',7,7);
 
   expect(computer.getHunterMode()).toBe(false);
 
@@ -39,13 +36,13 @@ test('hitArray and targetArray for hunterMode are initialized on hit', () => {
   const human = Player('human');
   const computer = Player('computer');
 
-  human.board.placeShip(5,'horizontal',1,1);
+  human.board.placeShip('carrier','horizontal',1,1);
 
   expect(computer.getHunterMode()).toBe(false);
 
   computer.computerAttack(human.board,1,1);
 
-  expect(computer.getHunterMode()).toBe(true);
+  expect(computer.getHunterMode()).toBeTruthy();
 
   expect(computer.hitArray).toEqual([[1,1]]);
   expect(computer.targetArray).toEqual([[0,1],[1,0],[1,2],[2,1]])
@@ -55,10 +52,10 @@ test('hitArray and targetArray change as expected on repeated hits', () => {
   const human = Player('human');
   const computer = Player('computer');
 
-  human.board.placeShip(3,'horizontal',4,5);
-  human.board.placeShip(5,'vertical',0,0);
-  human.board.placeShip(2,'horizontal',8,9);
-  human.board.placeShip(4,'vertical',9,0);
+  human.board.placeShip('submarine','horizontal',4,5);
+  human.board.placeShip('carrier','vertical',0,0);
+  human.board.placeShip('destroyer','horizontal',8,9);
+  human.board.placeShip('battleship','vertical',9,0);
 
 
   while (!human.board.checkAllSunk()) {

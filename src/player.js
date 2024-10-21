@@ -9,6 +9,7 @@ export const Player = (name, array = []) => {
   };
 
   let hunterMode = false;
+  let sunkLength = 0;
 
   const hitArray = [];
   let targetArray = [];
@@ -73,10 +74,27 @@ export const Player = (name, array = []) => {
           }
         })
       };
-      return [isHit, x, y];
-    } else if (hunterMode === true) {
 
+      /** Pass values back to for the DOM manipulating code to process */
+      return [isHit, x, y];
+
+    } else if (hunterMode === true) {
+      
       targetArray.sort();
+
+      if (targetArray.length === 0) {
+        hitArray.forEach(arr => {
+          const newTargets = [[arr[0]-1,arr[1]],
+                              [arr[0]+1,arr[1]],
+                              [arr[0],arr[1]-1],
+                              [arr[0],arr[1]+1]];
+          newTargets.forEach(arr => targetArray.push(arr));
+        });
+      };
+
+      targetArray = targetArray.filter(arr => {
+        return filterParams(arr, visitedArray);
+      });
 
       let target = targetArray[Math.floor(Math.random()*targetArray.length)];
 
@@ -92,9 +110,13 @@ export const Player = (name, array = []) => {
 
             // If the hit sinks the ship,deactivate hunter mode,
             if (obj.ship.isSunk()) {
-              hunterMode = false;
-              hitArray.length = 0;
-              targetArray.length = 0;
+              sunkLength += obj.ship.size;
+              if (sunkLength === hitArray.length) {
+                hunterMode = false;
+                sunkLength = 0;
+                hitArray.length = 0;
+                targetArray.length = 0;
+              };
             };
           };
         });
@@ -111,7 +133,7 @@ export const Player = (name, array = []) => {
               [hitArray[hitArray.length-1][0]+1,hitArray[0][1]]);
           };
 
-          targetArray = targetArray.filter(arr => {return filterParams(arr,visitedArray)});
+          targetArray = targetArray.filter(arr => { return filterParams(arr,visitedArray) });
 
         };
       } else {
