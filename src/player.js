@@ -102,6 +102,8 @@ export const Player = (name, array = []) => {
         
         isHit = true;
 
+        hitArray.push(target);
+
         playerBoard.boardObjects.forEach(obj => {
 
           if(obj.positionArray.some(element => 
@@ -111,6 +113,8 @@ export const Player = (name, array = []) => {
             // If the hit sinks the ship,deactivate hunter mode,
             if (obj.ship.isSunk()) {
               sunkLength += obj.ship.size;
+              console.log(sunkLength);
+              console.log(hitArray.length);
               if (sunkLength === hitArray.length) {
                 hunterMode = false;
                 sunkLength = 0;
@@ -121,7 +125,7 @@ export const Player = (name, array = []) => {
           };
         });
         if (hunterMode === true) {
-          hitArray.push(target);
+          
           hitArray.sort();
 
           targetArray.length = 0;
