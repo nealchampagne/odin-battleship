@@ -27,27 +27,27 @@ export const Gameboard = () => {
     return isEmpty;
   };
 
-  const placeShip = (size, direction, x , y) => {
+  const placeShip = (name, direction, x , y) => {
 
     const positionArray = [];
-    const ship = Ship(size);
+    const ship = Ship(name);
 
-    if (!checkEmpty(size, direction, x, y)){
+    if (!checkEmpty(ship.size, direction, x, y)){
       throw new Error('Cannot place ship in an occupied space');
     } else {
       if (direction === 'horizontal') {
-        if ((x + (size - 1)) > gridSize) {
+        if ((x + (ship.size - 1)) > gridSize) {
           throw new Error('Cannot place ship off the board');
         } else {
-          for(let i = 0; i < size; i++) {
+          for(let i = 0; i < ship.size; i++) {
             positionArray.push([x + i, y]);
           };
         };
       } else if (direction === 'vertical') {
-        if ((y + (size - 1 )) > gridSize) {
+        if ((y + (ship.size - 1 )) > gridSize) {
           throw new Error('Cannot place ship off the board')
         } else {
-          for(let i = 0; i < size; i++) {
+          for(let i = 0; i < ship.size; i++) {
             positionArray.push([x, y + i]);
           };
         };
@@ -79,11 +79,7 @@ export const Gameboard = () => {
 
     // Add the square to the visited array
     visitedArray.push([x,y]);
-    if (isHit) {
-      console.log('KABOOM');
-    } else {
-      console.log('SPLOOSH');
-    }
+
     return isHit;
   };
 
