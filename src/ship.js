@@ -1,14 +1,14 @@
-export const Ship = size => {
+export const Ship = name => {
 
-  const getName = size => {
-    if (size === 5) return 'carrier';
-    if (size === 4) return 'battleship';
-    if (size === 3) return 'cruiser';
-    if (size === 2) return 'destroyer';
-    if (size === 1) return 'patrol';
+  const getSize = name => {
+    if (name === 'carrier') return 5;
+    if (name === 'battleship') return 4;
+    if (name === 'cruiser') return 3;
+    if (name === 'submarine') return 3;
+    if (name === 'destroyer') return 2;
   }
 
-  const name = getName(size);
+  const size = getSize(name);
 
   let hitCount = 0;
 
@@ -17,7 +17,7 @@ export const Ship = size => {
   }
 
   const isSunk = () => {
-    return hitCount === size ? true : false;
+    return hitCount === size ? [name, size] : false;
   }
 
   return { name,
