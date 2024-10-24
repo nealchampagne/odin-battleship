@@ -9,15 +9,28 @@ import threeShip from "./images/threeship.png"
 import twoShip from "./images/twoship.png"
 
 const homeLoad = () => {
+
+  /** Grab/create DOM elements */
   const body = document.body;
+
+  const modeContainer = document.createElement('div');
+  const modeModal = document.createElement('div');
+  const modeMessage = document.createElement('div');
+  const modeButtonContainer = document.createElement('div');
+  const onePlayerButton = document.createElement('button');
+  const twoPlayerButton = document.createElement('button');
+
   const header = document.createElement('div');
   const headContainer = document.createElement('div');
   const title = document.createElement('div');
+
   const content = document.getElementById('content');
   const main = document.createElement('div');
+
   const nameContainer = document.createElement('div');
   const leftName = document.createElement('div');
   const rightName = document.createElement('div');
+
   const boardContainer = document.createElement('div');
   const leftShipTray = document.createElement('div');
   const leftCarrierLabel = document.createElement('div');
@@ -33,8 +46,12 @@ const homeLoad = () => {
   const rightCruiserLabel = document.createElement('div');
   const rightSubmarineLabel = document.createElement('div');
   const rightDestroyerLabel = document.createElement('div');
+
+  const helpText = document.createElement('div');
+
   const footContainer = document.createElement('div');
   const footer = document.createElement('div');
+
   const wavesImage = new Image();
   const leftCarrierImage = new Image();
   const leftBattleshipImage = new Image();
@@ -47,8 +64,7 @@ const homeLoad = () => {
   const rightSubmarineImage = new Image();
   const rightDestroyerImage = new Image();
 
-  clearChildren(content);
-
+  /** Assign image sources */
   wavesImage.src = waves;
   leftCarrierImage.src = fiveShip;
   leftBattleshipImage.src = fourShip;
@@ -59,16 +75,27 @@ const homeLoad = () => {
   rightBattleshipImage.src = fourShip;
   rightCruiserImage.src = threeShip;
   rightSubmarineImage.src = threeShip;
-  rightDestroyerImage.src = twoShip;   
+  rightDestroyerImage.src = twoShip;
+
+  /** Add CSS selectors */
+  modeContainer.classList.add('modalcontainer');
+  modeModal.classList.add('modal');
+  modeMessage.classList.add('modemessage');
+  modeButtonContainer.classList.add('modebtncontainer');
 
   header.classList.add('header');
   headContainer.classList.add('headcontainer');
   title.classList.add('title');
+
   main.classList.add('main');
   nameContainer.classList.add('namecontainer');
   leftName.classList.add('name');
   rightName.classList.add('name');
+
   boardContainer.classList.add('boardcontainer');
+  leftBoard.classList.add('board');
+  rightBoard.classList.add('board');
+
   leftShipTray.classList.add('shiptray');
   leftCarrierImage.classList.add('shipimage');
   leftBattleshipImage.classList.add('shipimage');
@@ -80,6 +107,7 @@ const homeLoad = () => {
   leftCruiserLabel.classList.add('shiplabel');
   leftSubmarineLabel.classList.add('shiplabel');
   leftDestroyerLabel.classList.add('shiplabel');
+
   rightShipTray.classList.add('shiptray');
   rightCarrierImage.classList.add('shipimage');
   rightBattleshipImage.classList.add('shipimage');
@@ -91,11 +119,13 @@ const homeLoad = () => {
   rightCruiserLabel.classList.add('shiplabel');
   rightSubmarineLabel.classList.add('shiplabel');
   rightDestroyerLabel.classList.add('shiplabel');
-  leftBoard.classList.add('board');
-  rightBoard.classList.add('board');
+
+  helpText.classList.add('helptext');
+
   footContainer.classList.add('footcontainer');
   footer.classList.add('footer');
 
+  /** Populate text content */
   title.textContent = 'Battleship';
   leftCarrierLabel.textContent = 'Carrier';
   leftBattleshipLabel.textContent = 'Battleship';
@@ -107,7 +137,30 @@ const homeLoad = () => {
   rightCruiserLabel.textContent = 'Cruiser';
   rightSubmarineLabel.textContent = 'Submarine';
   rightDestroyerLabel.textContent = 'Destroyer';
-  footer.textContent = '© 2024'
+
+  modeMessage.textContent = 'Select game mode:';
+  onePlayerButton.textContent = "One Player";
+  twoPlayerButton.textContent = "Two Player";
+
+  footer.textContent = 'By Neal Champagne: October 2024'
+
+  /** Set background images for boards and main body */
+  leftBoard.style.backgroundImage = `url(${waves})`;
+  leftBoard.style.backgroundSize = 'cover';
+  rightBoard.style.backgroundImage = `url(${waves})`;
+  rightBoard.style.backgroundSize = 'cover';
+  body.style.backgroundImage = `url(${waves})`;
+  body.style.backgroundSize = 'cover';
+
+  /** Wipe the slate clean for resets */
+  clearChildren(content);
+
+  main.appendChild(modeContainer);
+  modeContainer.appendChild(modeModal);
+  modeModal.appendChild(modeMessage);
+  modeModal.appendChild(modeButtonContainer);
+  modeButtonContainer.appendChild(onePlayerButton);
+  modeButtonContainer.appendChild(twoPlayerButton);
 
   content.appendChild(header);
   header.appendChild(headContainer);
@@ -134,13 +187,6 @@ const homeLoad = () => {
   boardContainer.appendChild(leftBoard);
   boardContainer.appendChild(rightBoard);
 
-  leftBoard.style.backgroundImage = `url(${waves})`;
-  leftBoard.style.backgroundSize = 'cover';
-  rightBoard.style.backgroundImage = `url(${waves})`;
-  rightBoard.style.backgroundSize = 'cover';
-  body.style.backgroundImage = `url(${waves})`;
-  body.style.backgroundSize = 'cover';
-
   boardContainer.appendChild(rightShipTray);
   rightShipTray.appendChild(rightCarrierLabel);
   rightShipTray.appendChild(rightCarrierImage);
@@ -152,27 +198,142 @@ const homeLoad = () => {
   rightShipTray.appendChild(rightSubmarineImage);
   rightShipTray.appendChild(rightDestroyerLabel);
   rightShipTray.appendChild(rightDestroyerImage);
+  
+  main.appendChild(helpText);
 
   content.appendChild(footContainer);
   footContainer.appendChild(footer);
 
+  /** Initialize necessary variables and arrays */
+  let pvpMode = false;
+  let setupPhase = false;
+  let battlePhase = false;
+
+  let player1;
+  let player2;
+
+  let placeCarrier = false;
+  let placeBattleship = false;
+  let placeCruiser = false;
+  let placeSubmarine = false;
+  let placeDestroyer = false;
+
+  let placeDirection = 'horizontal';
+  let hoverTarget;
+
+  const playerOneSquares = [];
+  const playerTwoSquares = [];
+  const visitedArray1 = [];
+  const visitedArray2 = [];
+
+  let playerTurn = 'player1';
+
+  /** Close mode-select modal and begin setup */
+  const closeModeModal = () => {
+    if (pvpMode) {
+      leftName.textContent = 'Player 1';
+      rightName.textContent = 'Player 2';
+      helpText.textContent = `Take turns placing ships by clicking on the desired square.
+      Press spacebar to rotate ship. Don't let the other player watch while you position your fleet!`
+    } else if (!pvpMode) {
+      helpText.textContent = `Place your ships by clicking on the desired square.
+      Press spacebar to rotate ship.`
+    }
+    leftBoard.style.pointerEvents = 'auto';
+    modeModal.style.display = 'none';
+    setupPhase = true;
+    placeCarrier = true;
+  };
+
+  /** Procede to 1-player game and close modal */
+  onePlayerButton.addEventListener('click', () => {
+    pvpMode = false;
+    closeModeModal();
+  });
+
+  /** Activate PvP and close modal */
+  twoPlayerButton.addEventListener('click', () => {
+    pvpMode = true;
+    closeModeModal();
+  });
+
+  /** Listen for spacebar to rotate ship placement */
+  document.addEventListener('keydown', event => {
+    if (setupPhase && event.code === 'Space') {
+      placeDirection = (placeDirection === 'horizontal' ? 'vertical' : 'horizontal');
+    };
+    event.preventDefault();
+  });
+
+  /** Add 'hit' class on hit */
   const hitSquare = (square) => {
     square.textContent = 'X';
     square.classList.add('hit');
-  }
+  };
 
+  /** Add 'miss' class on miss */
   const missSquare = (square) => {
     square.textContent = 'O';
     square.classList.add('miss');
+  };
+
+  /** Check for sunk ships after attacking, update CSS as necessary */
+  const markSunkShips = (player, board) => {
+    player.board.boardObjects.forEach(obj => {
+
+      if (obj.ship.isSunk()[0] === 'carrier') {
+        if (board === leftBoard) {
+          leftCarrierImage.classList.add('sunkship');
+          leftCarrierLabel.classList.add('sunklabel');
+        } else {
+          rightCarrierImage.classList.add('sunkship');
+          rightCarrierLabel.classList.add('sunklabel');
+        };
+      } else if (obj.ship.isSunk()[0] === 'battleship') {
+        if (board === leftBoard) {
+          leftBattleshipImage.classList.add('sunkship');
+          leftBattleshipLabel.classList.add('sunklabel');
+        } else {
+          rightBattleshipImage.classList.add('sunkship');
+          rightBattleshipLabel.classList.add('sunklabel');
+        };
+      } else if (obj.ship.isSunk()[0] === 'cruiser') {
+        if (board === leftBoard) {
+          leftCruiserImage.classList.add('sunkship');
+          leftCruiserLabel.classList.add('sunklabel');
+        } else {
+          rightCruiserImage.classList.add('sunkship');
+          rightCruiserLabel.classList.add('sunklabel');
+        };
+      } else if (obj.ship.isSunk()[0] === 'submarine') {
+        if (board === leftBoard) {
+          leftSubmarineImage.classList.add('sunkship');
+          leftSubmarineLabel.classList.add('sunklabel');
+        } else {
+          rightSubmarineImage.classList.add('sunkship');
+          rightSubmarineLabel.classList.add('sunklabel');
+        };
+      } else if (obj.ship.isSunk()[0] === 'destroyer') {
+        if (board === leftBoard) {
+          leftDestroyerImage.classList.add('sunkship');
+          leftDestroyerLabel.classList.add('sunklabel');
+        } else {
+          rightDestroyerImage.classList.add('sunkship');
+          rightDestroyerLabel.classList.add('sunklabel');
+        };
+      };
+    });
   }
 
+  /** Generate board squares and attach necessary CSS selectors */
   const fillBoard = (player, board, enemy) => {
     for (let i = 0; i < Gameboard().gridSize + 1; i++) {
       for (let j = 0; j < Gameboard().gridSize + 1; j++) {
+
         const square = document.createElement('div');
 
         square.setAttribute('id', `${player.name}${j}${i}`);
-        square.classList.add('square');
+        square.classList.add(`${player.name}`, 'square');
 
         if (!pvpMode) {
           if (player.name === 'player2')  {
@@ -183,80 +344,124 @@ const homeLoad = () => {
           };
         };
 
-        square.addEventListener('click', () => {
-          if (enemy.attack(player.board, j, i)) {
-            hitSquare(square);
-          } else {
-            missSquare(square);
+        square.addEventListener('mouseover', () => {
+          hoverTarget = square;
+          let size;
+          if (setupPhase) {
+            if (placeCarrier) {
+              size = 5;
+            } else if (placeBattleship) {
+              size = 4;
+            } else if (placeCruiser || placeSubmarine) {
+              size = 3;
+            } else if (placeDestroyer) {
+              size = 2;
+            };
+            highlightRange(player, size, placeDirection, j, i);
           };
-          square.classList.remove('fogofwar');
-          player.board.boardObjects.forEach(obj => {
-            console.log(obj.ship.isSunk());
-            if (obj.ship.isSunk()[0] === 'carrier') {
-              if (board === leftBoard) {
-                leftCarrierImage.classList.add('sunkship');
-                leftCarrierLabel.classList.add('sunklabel');
-              } else {
-                rightCarrierImage.classList.add('sunkship');
-                rightCarrierLabel.classList.add('sunklabel');
+        });
+
+        document.addEventListener('keydown', event => {
+          if (setupPhase && event.code === 'Space') {
+            if (hoverTarget === square) {
+            let size;
+              if (placeCarrier) {
+                size = 5;
+              } else if (placeBattleship) {
+                size = 4;
+              } else if (placeCruiser || placeSubmarine) {
+                size = 3;
+              } else if (placeDestroyer) {
+                size = 2;
+              };
+            clearHighlight(player);
+            highlightRange(player, size, placeDirection, j, i);
+            };
+          };
+        });
+
+        square.addEventListener('mouseout', () => {
+          if (setupPhase) {
+            clearHighlight(player);
+            hoverTarget = undefined;
+          };
+        });
+
+        square.addEventListener('click', () => {
+          if (setupPhase) {
+            if (placeCarrier) {
+              try {
+                placeOwnShip(player, 'carrier', placeDirection, j, i);
+                stepThroughSetup();
+              } catch (error) {
+                handleError(error);
               }
-            } else if (obj.ship.isSunk()[0] === 'battleship') {
-              if (board === leftBoard) {
-                leftBattleshipImage.classList.add('sunkship');
-                leftBattleshipLabel.classList.add('sunklabel');
-              } else {
-                rightBattleshipImage.classList.add('sunkship');
-                rightBattleshipLabel.classList.add('sunklabel');
+            } else if (placeBattleship) {
+              try {
+                placeOwnShip(player, 'battleship', placeDirection, j, i);
+                stepThroughSetup();
+              } catch (error) {
+                handleError(error);
               }
-            } else if (obj.ship.isSunk()[0] === 'cruiser') {
-              if (board === leftBoard) {
-                leftCruiserImage.classList.add('sunkship');
-                leftCruiserLabel.classList.add('sunklabel');
-              } else {
-                rightCruiserImage.classList.add('sunkship');
-                rightCruiserLabel.classList.add('sunklabel');
+            } else if (placeCruiser) {
+              try {
+                placeOwnShip(player, 'cruiser', placeDirection, j, i);
+                stepThroughSetup();
+              } catch (error) {
+                handleError(error);
               }
-            } else if (obj.ship.isSunk()[0] === 'submarine') {
-              if (board === leftBoard) {
-                leftSubmarineImage.classList.add('sunkship');
-                leftSubmarineLabel.classList.add('sunklabel');
-              } else {
-                rightSubmarineImage.classList.add('sunkship');
-                rightSubmarineLabel.classList.add('sunklabel');
+            } else if (placeSubmarine) {
+              try {
+                placeOwnShip(player, 'submarine', placeDirection, j, i);
+                stepThroughSetup();
+              } catch (error) {
+                handleError(error);
               }
-            } else if (obj.ship.isSunk()[0] === 'destroyer') {
-              if (board === leftBoard) {
-                leftDestroyerImage.classList.add('sunkship');
-                leftDestroyerLabel.classList.add('sunklabel');
-              } else {
-                rightDestroyerImage.classList.add('sunkship');
-                rightDestroyerLabel.classList.add('sunklabel');
-              }
-            }
-          })
-          togglePlayerTurn();
+            } else if (placeDestroyer) {
+              try {
+                placeOwnShip(player, 'destroyer', placeDirection, j, i);
+                stepThroughSetup();
+              } catch (error) {
+                handleError(error);
+              };
+            };
+          };
+          if (battlePhase) {
+            if (enemy.attack(player.board, j, i)) {
+              hitSquare(square);
+            } else {
+              missSquare(square);
+            };
+
+            square.classList.remove('fogofwar');
+
+            markSunkShips(player, board);
+
+            if (player.board.checkAllSunk()) {
+              endGame(enemy, player);
+            };
+
+            togglePlayerTurn();
+          }
         });
 
         board.appendChild(square);
-      }
-    }
+        player.name === 'player1' 
+          ? playerOneSquares.push(square) :
+            playerTwoSquares.push(square);
+      };
+    };
   };
 
-  let pvpMode = false;
-  let player1;
-  let player2;
-  const visitedArray1 = [];
-  const visitedArray2 = [];
-
-  let playerTurn = 'player1';
-
-
-
+  /** Handle turn switching */
   const togglePlayerTurn = () => {
     if (pvpMode) {
       if (playerTurn === 'player1') {
+        document.querySelectorAll('.player1').classList.add('fogofwar');
+        interstitialScreen();
         playerTurn = 'player2';
       } else {
+        document.querySelectorAll('.player2').classList.add('fogofwar');
         playerTurn = 'player1';
       };
     } else {
@@ -267,25 +472,80 @@ const homeLoad = () => {
       } else {
         missSquare(square);
       };
+      markSunkShips(player1, leftBoard);
+      if (player1.board.checkAllSunk()) {
+        endGame(player2, player1);
+      }
     };
   };
 
-  const initializePlayers = ( mode ) => { 
+  /** Create two players */
+  const initializePlayers = () => { 
     player1 = Player('player1',visitedArray1);
     player2 = Player('player2',visitedArray2);
 
-    if (mode === true) {
-      
-      leftName.textContent = 'Player 1';
-      rightName.textContent = 'Player 2';
+    leftName.textContent = 'Player';
+    rightName.textContent = 'Computer';
+  };
 
-    } else {
-
-      leftName.textContent = 'Human';
-      rightName.textContent = 'Computer';
+  /** Step down through ship size for setup purposes */
+  const stepThroughSetup = () => {
+    if (placeCarrier) {
+      placeCarrier = false;
+      placeBattleship = true;
+    } else if (placeBattleship) {
+      placeBattleship = false;
+      placeCruiser = true;
+    } else if (placeCruiser) {
+      placeCruiser = false;
+      placeSubmarine = true;
+    } else if (placeSubmarine) {
+      placeSubmarine = false;
+      placeDestroyer = true
+    } else if (placeDestroyer) {
+      placeDestroyer = false;
+      if (pvpMode && playerTurn === 'player1') {
+        togglePlayerTurn();
+      } else {
+        endSetup();
+      }
     };
+  };
+
+  const endSetup = mode => {
+    if (pvpMode) {
+      interstitialScreen();
+    }
   }
 
+  const interstitialScreen = turn => {
+    
+  }
+
+  /** Show a ghost image of a ship to review before placing it */
+  const highlightRange = (player, range, direction, x, y) => {
+    for (let i = 0; i < range; i++) {
+      if (direction === 'horizontal' ? ((x + i) <= player.board.gridSize)
+        : ((y + i) <= player.board.gridSize)) {
+      const square = (direction === 'horizontal'
+        ? document.getElementById(`${player.name}${x+i}${y}`)
+        : document.getElementById(`${player.name}${x}${y+i}`));
+      square.classList.add('shippreview');
+      };
+    };
+  };
+
+  /** Clear ghost image when not over an element or changing direction */
+  const clearHighlight = (player) => {
+    for (let i = 0; i <= player.board.gridSize; i++) {
+      for (let j = 0; j <= player.board.gridSize; j++) {
+      const square = document.getElementById(`${player.name}${j}${i}`);
+      square.classList.remove('shippreview');
+      };
+    };
+  };
+
+  /** Places a ship on the board and reflects this in the DOM */
   const placeOwnShip = (player, name, direction, x, y) => {
     let myShip = player.board.placeShip(name, direction, x, y);
     for (let i = 0; i < myShip.ship.size; i++) {
@@ -296,22 +556,33 @@ const homeLoad = () => {
     };
   };
 
+  const endGame = (player, enemy) => {
+    main.style.pointerEvents = 'none';
+    helpText.textContent = `${player.name} sunk all of ${enemy.name}'s
+     ships. ${player.name} wins!`;
+  };
+
+  /** --TO DO: MAKE ERROR MODAL-- Error handler */
+  const handleError = error => {
+    alert(error);
+  }
+
   initializePlayers(pvpMode);
 
   fillBoard(player1, leftBoard, player2);
   fillBoard(player2, rightBoard, player1);
 
-  placeOwnShip(player1, 'carrier', 'horizontal', 0,0);
-  placeOwnShip(player1, 'battleship', 'horizontal', 0,1);
-  placeOwnShip(player1, 'cruiser', 'horizontal', 0,2);
-  placeOwnShip(player1, 'submarine', 'horizontal', 0,3);
-  placeOwnShip(player1, 'destroyer', 'horizontal', 0,4);
+  // placeOwnShip(player1, 'carrier', 'horizontal', 0,0);
+  // placeOwnShip(player1, 'battleship', 'horizontal', 0,1);
+  // placeOwnShip(player1, 'cruiser', 'horizontal', 0,2);
+  // placeOwnShip(player1, 'submarine', 'horizontal', 0,3);
+  // placeOwnShip(player1, 'destroyer', 'horizontal', 0,4);
 
-  placeOwnShip(player2, 'carrier', 'horizontal', 0,0);
-  placeOwnShip(player2, 'batteship', 'horizontal', 0,1);
-  placeOwnShip(player2, 'cruiser', 'horizontal', 0,2);
-  placeOwnShip(player2, 'submarine', 'horizontal', 0,3);
-  placeOwnShip(player2, 'destroyer', 'horizontal', 0,4);
+  // placeOwnShip(player2, 'carrier', 'horizontal', 0,0);
+  // placeOwnShip(player2, 'battleship', 'horizontal', 0,1);
+  // placeOwnShip(player2, 'cruiser', 'horizontal', 0,2);
+  // placeOwnShip(player2, 'submarine', 'horizontal', 0,3);
+  // placeOwnShip(player2, 'destroyer', 'horizontal', 0,4);
 
 };
 
