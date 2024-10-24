@@ -261,8 +261,8 @@ const homeLoad = () => {
   document.addEventListener('keydown', event => {
     if (setupPhase && event.code === 'Space') {
       placeDirection = (placeDirection === 'horizontal' ? 'vertical' : 'horizontal');
+      event.preventDefault();
     };
-    event.preventDefault();
   });
 
   /** Add 'hit' class on hit */
@@ -338,9 +338,6 @@ const homeLoad = () => {
         if (!pvpMode) {
           if (player.name === 'player2')  {
             square.classList.add('fogofwar');
-          };
-          if (player.name === 'player1') {
-            board.classList.add('ownboard');
           };
         };
 
@@ -420,13 +417,16 @@ const homeLoad = () => {
             } else if (placeDestroyer) {
               try {
                 placeOwnShip(player, 'destroyer', placeDirection, j, i);
-                stepThroughSetup();
+                if (!pvpMode) {
+                  endSetup();
+                } else {
+                  togglePlayerTurn();
+                }
               } catch (error) {
                 handleError(error);
               };
             };
-          };
-          if (battlePhase) {
+          } else if (battlePhase) {
             if (enemy.attack(player.board, j, i)) {
               hitSquare(square);
             } else {
@@ -504,23 +504,93 @@ const homeLoad = () => {
       placeDestroyer = true
     } else if (placeDestroyer) {
       placeDestroyer = false;
-      if (pvpMode && playerTurn === 'player1') {
-        togglePlayerTurn();
-      } else {
-        endSetup();
+    };
+  };
+
+  const endSetup = pvpMode => {
+    if (pvpMode) {
+      interstitialScreen(playerTurn);
+    } else {
+      placeCarrier = true;
+      placeComputerShips();
+    };
+    leftBoard.style.pointerEvents = 'none';
+    setupPhase = false;
+    battlePhase = true;
+  };
+
+  const placeComputerShips = () => {
+    let placingShips = true;
+    
+    while (placingShips) {
+
+      placeDirection = ((Math.random()*2 >= 1) ? 'horizontal' : 'vertical');
+      let x = Math.floor(Math.random() * (player2.board.gridSize + 1));
+      let y = Math.floor(Math.random() * (player2.board.gridSize + 1));
+      console.log(placeDirection, x, y);
+
+      if (placeCarrier) { 
+        try {
+          placeOwnShip(player2, 'carrier', placeDirection, x, y);
+          console.log('Hiya!');
+          stepThroughSetup();
+        } catch (error) {
+          // Don't do anything on error, just try again;
+        };
+      } else if (placeBattleship) {
+        try {
+          placeOwnShip(player2, 'battleship', placeDirection, x, y);
+          stepThroughSetup();
+        } catch (error) {
+          // Don't do anything, just try again;
+        };
+      } else if (placeCruiser) {
+        try {
+          placeOwnShip(player2, 'cruiser', placeDirection, x, y);
+          stepThroughSetup();
+        } catch (error) {
+          // Don't do anything, just try again;
+        };
+      } else if (placeSubmarine) {
+        try {
+          placeOwnShip(player2, 'submarine', placeDirection, x, y);
+          stepThroughSetup();
+        } catch (error) {
+          // Don't do anything, just try again;
+        };
+      } else if (placeDestroyer) {
+        try {
+          placeOwnShip(player2, 'destroyer', placeDirection, x, y);
+          console.log('All done!');
+          placingShips = false;
+        } catch (error) {
+          // Don't do anything, just try again;
+        };
       }
     };
   };
 
-  const endSetup = mode => {
-    if (pvpMode) {
-      interstitialScreen();
-    }
+  const interstitialScreen = turn => {
+    concealBoard(playerOneSquares);
+    concealBoard(playerTwoSquares);
+    if (turn === 'player1') {
+      interstitialText.textContent = `Player 1, click 'Ready' to proceed with your turn.`
+    } else {
+      interstitialText.textContent = `Player 2, click 'Ready' to proceed with your turn.`
+    };
+  };
+
+  const closeInterstitial = turn => {
+
   }
 
-  const interstitialScreen = turn => {
-    
-  }
+  const concealBoard = arr => {
+    arr.forEach(square => {
+      if (!square.classList.contains('hit') && !square.classList.contains('miss')) {
+        square.classList.add('fogofwar');
+      };
+    });
+  };
 
   /** Show a ghost image of a ship to review before placing it */
   const highlightRange = (player, range, direction, x, y) => {
@@ -556,6 +626,7 @@ const homeLoad = () => {
     };
   };
 
+  /** Declare winner and disable attacking behavior */
   const endGame = (player, enemy) => {
     main.style.pointerEvents = 'none';
     helpText.textContent = `${player.name} sunk all of ${enemy.name}'s
@@ -571,19 +642,6 @@ const homeLoad = () => {
 
   fillBoard(player1, leftBoard, player2);
   fillBoard(player2, rightBoard, player1);
-
-  // placeOwnShip(player1, 'carrier', 'horizontal', 0,0);
-  // placeOwnShip(player1, 'battleship', 'horizontal', 0,1);
-  // placeOwnShip(player1, 'cruiser', 'horizontal', 0,2);
-  // placeOwnShip(player1, 'submarine', 'horizontal', 0,3);
-  // placeOwnShip(player1, 'destroyer', 'horizontal', 0,4);
-
-  // placeOwnShip(player2, 'carrier', 'horizontal', 0,0);
-  // placeOwnShip(player2, 'battleship', 'horizontal', 0,1);
-  // placeOwnShip(player2, 'cruiser', 'horizontal', 0,2);
-  // placeOwnShip(player2, 'submarine', 'horizontal', 0,3);
-  // placeOwnShip(player2, 'destroyer', 'horizontal', 0,4);
-
 };
 
 homeLoad();
