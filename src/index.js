@@ -13,7 +13,7 @@ const homeLoad = () => {
   /** Grab/create DOM elements */
   const body = document.body;
 
-  const modeContainer = document.createElement('div');
+  const modalContainer = document.createElement('div');
   const modeModal = document.createElement('div');
   const modeMessage = document.createElement('div');
   const modeButtonContainer = document.createElement('div');
@@ -49,6 +49,18 @@ const homeLoad = () => {
 
   const helpText = document.createElement('div');
 
+  const interstitialModal = document.createElement('div');
+  const interstitialText = document.createElement('div');
+  const readyButton = document.createElement('button');
+
+  const errorModal = document.createElement('div');
+  const errorText = document.createElement('div');
+  const errorButton = document.createElement('button');
+
+  const endModal = document.createElement('div');
+  const endText = document.createElement('div');
+  const resetButton = document.createElement('button');
+
   const footContainer = document.createElement('div');
   const footer = document.createElement('div');
 
@@ -78,7 +90,7 @@ const homeLoad = () => {
   rightDestroyerImage.src = twoShip;
 
   /** Add CSS selectors */
-  modeContainer.classList.add('modalcontainer');
+  modalContainer.classList.add('modalcontainer');
   modeModal.classList.add('modal');
   modeMessage.classList.add('modemessage');
   modeButtonContainer.classList.add('modebtncontainer');
@@ -122,6 +134,16 @@ const homeLoad = () => {
 
   helpText.classList.add('helptext');
 
+  interstitialModal.classList.add('modal');
+  interstitialText.classList.add('intertext');
+
+  errorModal.classList.add('modal', 'error');
+  errorText.classList.add('errortext');
+  errorButton.classList.add('errorbtn');
+
+  endModal.classList.add('modal');
+  endText.classList.add('endtext');
+
   footContainer.classList.add('footcontainer');
   footer.classList.add('footer');
 
@@ -142,8 +164,22 @@ const homeLoad = () => {
   onePlayerButton.textContent = "One Player";
   twoPlayerButton.textContent = "Two Player";
 
-  footer.textContent = 'By Neal Champagne: October 2024'
+  readyButton.textContent = 'Ready';
 
+  footer.textContent = 'By Neal Champagne: October 2024';
+
+  interstitialModal.style.display = 'none';
+  readyButton.addEventListener('click', () => closeInterstitial(playerTurn));
+
+  errorModal.style.display = 'none';
+  errorButton.textContent = 'Close';
+  errorButton.addEventListener('click', () => {
+    errorModal.style.display = 'none';
+  })
+
+  endModal.style.display = 'none';
+  resetButton.textContent = 'New Game';
+  resetButton.addEventListener('click', () => homeLoad());
   /** Set background images for boards and main body */
   leftBoard.style.backgroundImage = `url(${waves})`;
   leftBoard.style.backgroundSize = 'cover';
@@ -155,8 +191,8 @@ const homeLoad = () => {
   /** Wipe the slate clean for resets */
   clearChildren(content);
 
-  main.appendChild(modeContainer);
-  modeContainer.appendChild(modeModal);
+  main.appendChild(modalContainer);
+  modalContainer.appendChild(modeModal);
   modeModal.appendChild(modeMessage);
   modeModal.appendChild(modeButtonContainer);
   modeButtonContainer.appendChild(onePlayerButton);
@@ -201,6 +237,18 @@ const homeLoad = () => {
   
   main.appendChild(helpText);
 
+  modalContainer.appendChild(interstitialModal);
+  interstitialModal.appendChild(interstitialText);
+  interstitialModal.appendChild(readyButton);
+
+  modalContainer.appendChild(errorModal);
+  errorModal.appendChild(errorText);
+  errorModal.appendChild(errorButton);
+
+  modalContainer.appendChild(endModal);
+  endModal.appendChild(endText);
+  endModal.appendChild(resetButton);
+
   content.appendChild(footContainer);
   footContainer.appendChild(footer);
 
@@ -235,6 +283,7 @@ const homeLoad = () => {
       rightName.textContent = 'Player 2';
       helpText.textContent = `Take turns placing ships by clicking on the desired square.
       Press spacebar to rotate ship. Don't let the other player watch while you position your fleet!`
+      rightBoard.style.pointerEvents = 'none';
     } else if (!pvpMode) {
       helpText.textContent = `Place your ships by clicking on the desired square.
       Press spacebar to rotate ship.`
@@ -417,11 +466,11 @@ const homeLoad = () => {
             } else if (placeDestroyer) {
               try {
                 placeOwnShip(player, 'destroyer', placeDirection, j, i);
-                if (!pvpMode) {
-                  endSetup();
-                } else {
+                if (pvpMode && playerTurn === 'player1') { 
                   togglePlayerTurn();
-                }
+                } else {
+                  endSetup(pvpMode);
+                } 
               } catch (error) {
                 handleError(error);
               };
@@ -438,7 +487,7 @@ const homeLoad = () => {
             markSunkShips(player, board);
 
             if (player.board.checkAllSunk()) {
-              endGame(enemy, player);
+              endGame(enemy);
             };
 
             togglePlayerTurn();
@@ -456,26 +505,36 @@ const homeLoad = () => {
   /** Handle turn switching */
   const togglePlayerTurn = () => {
     if (pvpMode) {
-      if (playerTurn === 'player1') {
-        document.querySelectorAll('.player1').classList.add('fogofwar');
-        interstitialScreen();
+      if (setupPhase) {
+        concealBoard(playerOneSquares);
+        playerTwoSquares.forEach(square => square.classList.remove('fogofwar'));
+        placeCarrier = true;
+        leftBoard.style.pointerEvents = 'none';
+        rightBoard.style.pointerEvents = 'auto';
         playerTurn = 'player2';
-      } else {
-        document.querySelectorAll('.player2').classList.add('fogofwar');
-        playerTurn = 'player1';
+      } else if (battlePhase) {
+        if (playerTurn === 'player1') {
+          concealBoard(playerOneSquares);
+          playerTurn = 'player2';
+          showInterstitial(playerTurn);
+        } else {
+          concealBoard(playerTwoSquares);
+          playerTurn = 'player1';
+          showInterstitial(playerTurn);
+        };
       };
-    } else {
-      const computerResult = player2.computerAttack(player1.board);
-      const square = document.getElementById(`player1${computerResult[1]}${computerResult[2]}`);
-      if (computerResult[0]) {
-        hitSquare(square);
       } else {
-        missSquare(square);
-      };
-      markSunkShips(player1, leftBoard);
-      if (player1.board.checkAllSunk()) {
-        endGame(player2, player1);
-      }
+        const computerResult = player2.computerAttack(player1.board);
+        const square = document.getElementById(`player1${computerResult[1]}${computerResult[2]}`);
+        if (computerResult[0]) {
+          hitSquare(square);
+        } else {
+          missSquare(square);
+        };
+        markSunkShips(player1, leftBoard);
+        if (player1.board.checkAllSunk()) {
+          endGame(player2);
+        }
     };
   };
 
@@ -507,18 +566,25 @@ const homeLoad = () => {
     };
   };
 
+  // Transition out of setup mode
   const endSetup = pvpMode => {
     if (pvpMode) {
-      interstitialScreen(playerTurn);
+      playerTurn = 'player1';
+      showInterstitial(playerTurn);
+      helpText.textContent = `Take turns firing at the other player's 
+      board until one player sinks all of the other's ships.`
     } else {
       placeCarrier = true;
       placeComputerShips();
+      helpText.textContent = `Fire at the computer's board until one fleet
+      or the other is entirely sunk.`
     };
     leftBoard.style.pointerEvents = 'none';
     setupPhase = false;
     battlePhase = true;
   };
 
+  // Randomly place the computer's fleet in valid positions
   const placeComputerShips = () => {
     let placingShips = true;
     
@@ -532,7 +598,6 @@ const homeLoad = () => {
       if (placeCarrier) { 
         try {
           placeOwnShip(player2, 'carrier', placeDirection, x, y);
-          console.log('Hiya!');
           stepThroughSetup();
         } catch (error) {
           // Don't do anything on error, just try again;
@@ -561,7 +626,6 @@ const homeLoad = () => {
       } else if (placeDestroyer) {
         try {
           placeOwnShip(player2, 'destroyer', placeDirection, x, y);
-          console.log('All done!');
           placingShips = false;
         } catch (error) {
           // Don't do anything, just try again;
@@ -570,20 +634,35 @@ const homeLoad = () => {
     };
   };
 
-  const interstitialScreen = turn => {
+  // Intersitial screen to make 2-player possible on one screen
+  const showInterstitial = turn => {
     concealBoard(playerOneSquares);
     concealBoard(playerTwoSquares);
+    leftBoard.style.pointerEvents = 'none';
+    rightBoard.style.pointerEvents = 'none';
+    interstitialModal.style.display = 'grid';
     if (turn === 'player1') {
       interstitialText.textContent = `Player 1, click 'Ready' to proceed with your turn.`
-    } else {
+    } else if (turn === 'player2') {
       interstitialText.textContent = `Player 2, click 'Ready' to proceed with your turn.`
     };
   };
 
+  // Transition back from interstitial to the given player's turn
   const closeInterstitial = turn => {
-
+    if (turn === 'player1') {
+      playerOneSquares.forEach(square => 
+        square.classList.remove('fogofwar'));
+      rightBoard.style.pointerEvents = 'auto';      
+    } else if (turn === 'player2') {
+      playerTwoSquares.forEach(square => 
+        square.classList.remove('fogofwar'));
+      leftBoard.style.pointerEvents = 'auto';
+    };
+    interstitialModal.style.display = 'none';
   }
 
+  // Hide the unvisited squares of a given board
   const concealBoard = arr => {
     arr.forEach(square => {
       if (!square.classList.contains('hit') && !square.classList.contains('miss')) {
@@ -627,18 +706,32 @@ const homeLoad = () => {
   };
 
   /** Declare winner and disable attacking behavior */
-  const endGame = (player, enemy) => {
+  const endGame = (player) => {
+    let winner;
+    let loser;
+
+    if (player === player1) {
+      winner = leftName.textContent;
+      loser = rightName.textContent;
+    } else {
+      winner = rightName.textContent;
+      loser = leftName.textContent;
+    }
     main.style.pointerEvents = 'none';
-    helpText.textContent = `${player.name} sunk all of ${enemy.name}'s
-     ships. ${player.name} wins!`;
+    endModal.style.pointerEvents = 'auto';
+    endModal.style.display = 'grid';
+    helpText.textContent = '';
+    endText.textContent = `${winner} sunk all of ${loser}'s
+     ships. ${winner} wins!`;
   };
 
-  /** --TO DO: MAKE ERROR MODAL-- Error handler */
+  // Display errors in a modal for the user
   const handleError = error => {
-    alert(error);
-  }
+    errorModal.style.display = 'grid';
+    errorText.textContent = error;
+  };
 
-  initializePlayers(pvpMode);
+  initializePlayers();
 
   fillBoard(player1, leftBoard, player2);
   fillBoard(player2, rightBoard, player1);
