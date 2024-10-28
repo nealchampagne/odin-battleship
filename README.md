@@ -1,6 +1,7 @@
 # Odin Battleship
 
 ## Description
+
 This is my implementation of the Battleship TDD capstone project from the Javascript Course of the Odin Project's Full Stack Javascript curriculum.
 
 This was my first time using TDD principles to guide the process of writing my three object factories. I used Jest to build incremental tests that ensured my code worked as expected and that any subsequent tweaks wouldn't break anything that came before without me noticing.

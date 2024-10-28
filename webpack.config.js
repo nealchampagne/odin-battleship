@@ -46,8 +46,8 @@ export default {
     hot: true,
     watchFiles: ["./src/*"],
     static: {
-      directory: path.join(__dirname, 'dist'),
+      directory: path.join(__dirname, "dist"),
       watch: true,
-  },
+    },
   },
 };

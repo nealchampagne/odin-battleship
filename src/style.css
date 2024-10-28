@@ -3,7 +3,7 @@
 }
 
 :root {
-  --page-font: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  --page-font: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
 }
 
 body {
@@ -41,7 +41,11 @@ body {
   background: white;
 }
 
-.modemessage, .intertext, .endtext, .errortext, .helptext {
+.modemessage,
+.intertext,
+.endtext,
+.errortext,
+.helptext {
   font-family: var(--page-font);
   font-size: 2rem;
   text-align: center;
@@ -166,7 +170,7 @@ button:hover {
   font-family: var(--page-font);
 }
 
-.sunklabel{
+.sunklabel {
   color: red;
 }
 
@@ -207,18 +211,19 @@ button:hover {
 }
 
 .fogofwar {
-  background: hsla(0,0%,20%,80%);
+  background: hsla(0, 0%, 20%, 80%);
   border: 1px solid white;
 }
 
-.miss, .hit {
+.miss,
+.hit {
   pointer-events: none;
   cursor: none;
 }
 
 .miss {
   color: white;
-  border: 2px solid white
+  border: 2px solid white;
 }
 
 .hit {
