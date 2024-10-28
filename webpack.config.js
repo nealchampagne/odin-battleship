@@ -6,7 +6,7 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default{
+export default {
   mode: "development",
   entry: "./src/index.js",
   plugins: [
@@ -18,10 +18,10 @@ export default{
   ],
   module: {
     rules: [
-      {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
+      // {
+      //   test: /\.css$/i,
+      //   use: ["style-loader", "css-loader"],
+      // },
       {
         test: /\.(png|svg|jpe?g|gif)$/i,
         type: "asset/resource",
@@ -40,5 +40,14 @@ export default{
     filename: "bundle.js",
     path: path.resolve(__dirname, "dist"),
     clean: true,
+  },
+  devtool: "eval-source-map",
+  devServer: {
+    hot: true,
+    watchFiles: ["./src/*"],
+    static: {
+      directory: path.join(__dirname, 'dist'),
+      watch: true,
+  },
   },
 };
