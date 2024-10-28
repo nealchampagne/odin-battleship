@@ -4,8 +4,10 @@ export const Gameboard = () => {
 
   const boardObjects = [];
   
+  // Set size of board grid
   const gridSize = 9;
 
+  // Function to make sure a given range on the board is empty
   const checkEmpty = (range, direction, x, y) => {
     let isEmpty = true;
 
@@ -27,11 +29,16 @@ export const Gameboard = () => {
     return isEmpty;
   };
 
+  // Place ships on the board
   const placeShip = (name, direction, x , y) => {
 
+    // Create an array to hold all the squares the ship occupies
     const positionArray = [];
+
+    // Create a ship of the given type
     const ship = Ship(name);
 
+    // Throw an error if the space is occupied or if the ship goes off the board
     if (!checkEmpty(ship.size, direction, x, y)){
       throw new Error('Cannot place ship in an occupied space');
     } else {
@@ -53,12 +60,15 @@ export const Gameboard = () => {
         };
       };
 
+      // Otherwise, add the new object to the board objects array
       boardObjects.push({ positionArray, ship });
 
+      // Return the object containing the position array and the new ship
       return { positionArray, ship }
     };
   };
 
+  // Handle logic when a board square is attacked
   const receiveAttack = (visitedArray, x, y) => {
 
     // Throw error if the square has already been visited
@@ -83,6 +93,7 @@ export const Gameboard = () => {
     return isHit;
   };
 
+  // Check if all the ships on the board are sunk
   const checkAllSunk = () => {
     let allSunk = true;
     boardObjects.forEach(obj => {

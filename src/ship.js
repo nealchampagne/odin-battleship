@@ -1,5 +1,6 @@
 export const Ship = name => {
 
+  // Determine ship size based on the provided ship name
   const getSize = name => {
     if (name === 'carrier') return 5;
     if (name === 'battleship') return 4;
@@ -10,12 +11,15 @@ export const Ship = name => {
 
   const size = getSize(name);
 
+  // Counter for number of hits the ship has taken
   let hitCount = 0;
 
+  // Increment the ship's hit count on hit
   const hit = () => {
     hitCount++;
   }
 
+  // Check if the ship is sunk based on number of hits taken
   const isSunk = () => {
     return hitCount === size ? [name, size] : false;
   }

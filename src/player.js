@@ -2,24 +2,30 @@ import { Gameboard } from './gameboard.js';
 
 export const Player = (name, array = []) => {
 
+  // Each player needs their own Gameboard object
   const board = Gameboard();
 
+  // Invoke receiveAttack on the provided board
   const attack = (playerBoard, x, y, visitedArray = array,) => {
     return playerBoard.receiveAttack(visitedArray,x,y);
   };
 
+  // Some general housekeeping variables
   let hunterMode = false;
+  let linearHunt = false;
   let sunkLength = 0;
 
   const hitArray = [];
   let targetArray = [];
 
+  // Define parameters to filter out invalid shots
   const filterParams = (arr, visitedArray) => ((arr[0] >= 0 && arr[0] <= board.gridSize)
-  && (arr[1] >= 0 && arr[1] <= board.gridSize) 
-  && !JSON.stringify(visitedArray).includes(`${JSON.stringify(arr)}`));
+    && (arr[1] >= 0 && arr[1] <= board.gridSize) 
+    && !JSON.stringify(visitedArray).includes(`${JSON.stringify(arr)}`));
 
   const getHunterMode = () => hunterMode;
 
+  // Generate random values for computerAttack **UPGRADE THIS LATER**
   const getRandomValue = () => Math.floor(Math.random()*(board.gridSize+1));
 
   const computerAttack = (playerBoard,
@@ -59,6 +65,7 @@ export const Player = (name, array = []) => {
             } else {
 
               hunterMode = true;
+              linearHunt = true;
 
               hitArray.push([x,y]);
 
@@ -83,6 +90,9 @@ export const Player = (name, array = []) => {
       targetArray.sort();
 
       if (targetArray.length === 0) {
+        
+        linearHunt = false;
+
         hitArray.forEach(arr => {
           const newTargets = [[arr[0]-1,arr[1]],
                               [arr[0]+1,arr[1]],
@@ -92,12 +102,15 @@ export const Player = (name, array = []) => {
         });
       };
 
+      // Filter out any invalid targets in the array
       targetArray = targetArray.filter(arr => {
         return filterParams(arr, visitedArray);
       });
 
+      // Pick a target at random from the valid targets
       let target = targetArray[Math.floor(Math.random()*targetArray.length)];
 
+      // Handle logic if the attack is a hit
       if (playerBoard.receiveAttack(visitedArray,target[0],target[1])) {
         
         isHit = true;
@@ -113,10 +126,10 @@ export const Player = (name, array = []) => {
             // If the hit sinks the ship,deactivate hunter mode,
             if (obj.ship.isSunk()) {
               sunkLength += obj.ship.size;
-              console.log(sunkLength);
-              console.log(hitArray.length);
+
               if (sunkLength === hitArray.length) {
                 hunterMode = false;
+                linearHunt = false;
                 sunkLength = 0;
                 hitArray.length = 0;
                 targetArray.length = 0;
@@ -124,25 +137,34 @@ export const Player = (name, array = []) => {
             };
           };
         });
+
+        // If the hit doesn't turn off hunter mode, continue hunting logic
         if (hunterMode === true) {
           
           hitArray.sort();
 
-          targetArray.length = 0;
-          if (hitArray[0][0] === hitArray[1][0]) {
-            targetArray.push([hitArray[0][0],(hitArray[0][1]-1)],
-              [hitArray[0][0],hitArray[hitArray.length-1][1]+1]);
-          } else if (hitArray[0][1] === hitArray[0][1]) {
-            targetArray.push([hitArray[0][0]-1,hitArray[0][1]],
-              [hitArray[hitArray.length-1][0]+1,hitArray[0][1]]);
+          if (linearHunt === true) {
+            targetArray.length = 0;
+            if (hitArray[0][0] === hitArray[1][0]) {
+              targetArray.push([hitArray[0][0],(hitArray[0][1]-1)],
+                [hitArray[0][0],hitArray[hitArray.length-1][1]+1]);
+            } else if (hitArray[0][1] === hitArray[0][1]) {
+              targetArray.push([hitArray[0][0]-1,hitArray[0][1]],
+                [hitArray[hitArray.length-1][0]+1,hitArray[0][1]]);
+            };
           };
 
-          targetArray = targetArray.filter(arr => { return filterParams(arr,visitedArray) });
+          // Filter out any invalid targets
+          targetArray = targetArray.filter(arr => {
+            return filterParams(arr,visitedArray) });
 
         };
       } else {
+        // On a miss, remove that item from the target array
         targetArray.splice(targetArray.indexOf(target), 1);
       };
+
+      // Return whether it was a hit or not and location for styling purposes
       return [isHit, target[0], target[1]];
     };
   };
